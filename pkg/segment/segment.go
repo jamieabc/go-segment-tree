@@ -1,7 +1,5 @@
 package segment
 
-import "math"
-
 // Segment - interface for segment tree operation
 type Segment interface {
 	Data() []Item
@@ -100,13 +98,13 @@ func (s *seg) construct(data []int, position, start, end int) {
 	}
 }
 
-func New(data []int, f func(int, int) int) Segment {
+func New(data []int, f func(int, int) int, defaultValue int) Segment {
 	length := len(data)
 	if length == 0 {
 		return &seg{
 			data:       make([]Item, 0),
 			comparator: f,
-			defaultVal: math.MaxInt32,
+			defaultVal: defaultValue,
 		}
 	}
 
@@ -116,11 +114,11 @@ func New(data []int, f func(int, int) int) Segment {
 	s := &seg{
 		data:       make([]Item, 2*length-1),
 		comparator: f,
-		defaultVal: math.MaxInt32,
+		defaultVal: defaultValue,
 	}
 
 	for i := range s.data {
-		s.data[i].Val = math.MaxInt32
+		s.data[i].Val = defaultValue
 	}
 
 	s.construct(data, 0, 0, length-1)

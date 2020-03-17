@@ -3,6 +3,7 @@ package segment_test
 import (
 	"github.com/jamieabc/go-segment-tree/pkg/segment"
 	"github.com/stretchr/testify/assert"
+	"math"
 	"testing"
 )
 
@@ -15,7 +16,7 @@ func min(i, j int) int {
 
 func TestNewWhenLengthPowerOf2(t *testing.T) {
 	data := []int{1, 3, 2, 9, 7, 6, 12, -1}
-	s := segment.New(data, min)
+	s := segment.New(data, min, math.MaxInt32)
 	items := s.Data()
 	values := make([]int, len(items))
 	for i, d := range s.Data() {
@@ -32,7 +33,7 @@ func TestNewWhenLengthPowerOf2(t *testing.T) {
 }
 
 func TestNewWhenLengthNotPowerOf2(t *testing.T) {
-	s := segment.New([]int{1, 3, 2, 9, 7, 6, -1}, min)
+	s := segment.New([]int{1, 3, 2, 9, 7, 6, -1}, min, math.MaxInt32)
 	values := make([]int, len(s.Data()))
 	for i, d := range s.Data() {
 		values[i] = d.Val
@@ -43,7 +44,7 @@ func TestNewWhenLengthNotPowerOf2(t *testing.T) {
 
 func TestQuery(t *testing.T) {
 	data := []int{1, 3, 2, 9, 7, 6, 12, -1}
-	s := segment.New(data, min)
+	s := segment.New(data, min, math.MaxInt32)
 	items := s.Data()
 	values := make([]int, len(items))
 	for i, d := range s.Data() {
