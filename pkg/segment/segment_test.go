@@ -66,3 +66,18 @@ func TestQuery(t *testing.T) {
 	result = s.Query(0, 3, 0)
 	assert.Equal(t, 1, result, "wrong result")
 }
+
+func TestUpdate(t *testing.T) {
+	data := []int{1, 3, 2, 9, 7, 6, -1}
+	s := segment.New(data, min, math.MaxInt32)
+
+	s.Update(1, -2)
+	items := s.Data()
+	values := make([]int, len(items))
+	for i, d := range s.Data() {
+		values[i] = d.Val
+	}
+
+	result := s.Query(0, 6, 0)
+	assert.Equal(t, -2, result, "wrong result")
+}

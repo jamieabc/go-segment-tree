@@ -4,6 +4,7 @@ package segment
 type Segment interface {
 	Data() []Item
 	Query(int, int, int) int
+	Update(int, int)
 }
 
 type Item struct {
@@ -55,6 +56,32 @@ func (s *seg) Query(start, end, position int) int {
 		s.Query(start, s.data[left].EndIndex, left),
 		s.Query(s.data[right].StartIndex, end, right),
 	)
+}
+
+func (s *seg) Update(index, value int) {
+	l := (len(s.data) + 1) / 2
+
+	position := l + index
+
+	for position >= 0 {
+		parent := parent(position)
+		left := leftChild(parent)
+		right := rightChild(parent)
+
+		var newValue int
+		if left == position {
+			newValue = s.comparator(value, s.data[right].Val)
+		} else {
+			newValue = s.comparator(s.data[left].Val, value)
+		}
+
+		if newValue == s.data[parent].Val {
+			return
+		}
+
+		s.data[parent].Val = newValue
+		position = parent
+	}
 }
 
 //        0
