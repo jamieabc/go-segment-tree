@@ -29,7 +29,7 @@ func (s *seg) Query(start, end, position int) int {
 	item := s.data[position]
 
 	// no match, return default value
-	if item.StartIndex > end || item.EndIndex < start || end < start {
+	if item.StartIndex > end || item.EndIndex < start {
 		return s.defaultVal
 	}
 
