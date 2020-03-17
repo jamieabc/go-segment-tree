@@ -2,72 +2,83 @@ package segment
 
 import "math"
 
+// Segment - interface for segment tree operation
+type Segment interface {
+	Data() []Item
+}
+
 type Item struct {
 	StartIndex int
 	EndIndex   int
 	Val        int
 }
 
-type Seg struct {
-	Data []Item
+type seg struct {
+	data []Item
+}
+
+// Data - return interval tree
+func (s *seg) Data() []Item {
+	return s.data
 }
 
 //        0
 //    1        2
 //  3   4    5   6
-func (s *Seg) parent(i int) int {
+func parent(i int) int {
 	return (i - 1) / 2
 }
 
-func (s *Seg) leftChild(i int) int {
+func leftChild(i int) int {
 	return i*2 + 1
 }
 
-func (s *Seg) rightChild(i int) int {
+func rightChild(i int) int {
 	return i*2 + 2
 }
 
-func (s *Seg) construct(data []int, position, start, end int) {
+func (s *seg) construct(data []int, position, start, end int) (int, int) {
 	if start == end {
-		s.Data[position] = Item{
+		s.data[position] = Item{
 			StartIndex: start,
 			EndIndex:   end,
 			Val:        data[start],
 		}
-		return
+		return start, end
 	}
 
 	mid := start + (end-start)/2
-	leftChild := s.leftChild(position)
-	rightChild := s.rightChild(position)
+	leftChild := leftChild(position)
+	rightChild := rightChild(position)
 
-	s.construct(data, leftChild, start, mid)
-	s.construct(data, rightChild, mid+1, end)
+	l, _ := s.construct(data, leftChild, start, mid)
+	_, r := s.construct(data, rightChild, mid+1, end)
 
-	s.Data[position] = Item{
-		StartIndex: start,
-		EndIndex:   end,
-		Val:        min(s.Data[leftChild].Val, s.Data[rightChild].Val),
+	s.data[position] = Item{
+		StartIndex: l,
+		EndIndex:   r,
+		Val:        min(s.data[leftChild].Val, s.data[rightChild].Val),
 	}
+	return l, r
 }
 
-func New(data []int) Seg {
+func New(data []int) Segment {
 	length := len(data)
 	if length == 0 {
-		return Seg{
-			Data: make([]Item, 0),
+		return &seg{
+			data: make([]Item, 0),
 		}
 	}
 
 	// l: total leaf count, considering tree height, total needed space
 	// is 2*l-1 (e.g. l = 4, second level with 2 nodes, root with 1 node)
 
-	s := Seg{
-		Data: make([]Item, 2*length-1),
+	s := &seg{
+		data: make([]Item, 2*length-1),
 	}
 
-	for i := range s.Data {
-		s.Data[i].Val = math.MaxInt32
+	for i := range s.data {
+		s.data[i].Val = math.MaxInt32
 	}
 
 	s.construct(data, 0, 0, length-1)
