@@ -1,10 +1,16 @@
 package segment
 
+import (
+	"fmt"
+	"strings"
+)
+
 // Segment - interface for segment tree operation
 type Segment interface {
 	Data() []Item
 	Query(int, int, int) int
 	Update(int, int)
+	fmt.Stringer
 }
 
 type Item struct {
@@ -22,6 +28,16 @@ type seg struct {
 // Data - return interval tree
 func (s *seg) Data() []Item {
 	return s.data
+}
+
+func (s *seg) String() string {
+	var sb strings.Builder
+
+	for i, item := range s.data {
+		sb.WriteString(fmt.Sprintf("index %d, range %d-%d, val: %d\n", i, item.StartIndex, item.EndIndex, item.Val))
+	}
+
+	return sb.String()
 }
 
 // Query - retrieve value from specific range
@@ -59,21 +75,14 @@ func (s *seg) Query(start, end, position int) int {
 }
 
 func (s *seg) Update(index, value int) {
-	l := (len(s.data) + 1) / 2
-
-	position := l + index
+	position := s.find(index, 0)
+	s.data[position].Val = value
 
 	for position >= 0 {
 		parent := parent(position)
 		left := leftChild(parent)
 		right := rightChild(parent)
-
-		var newValue int
-		if left == position {
-			newValue = s.comparator(value, s.data[right].Val)
-		} else {
-			newValue = s.comparator(s.data[left].Val, value)
-		}
+		newValue := s.comparator(s.data[left].Val, s.data[right].Val)
 
 		if newValue == s.data[parent].Val {
 			return
@@ -82,6 +91,22 @@ func (s *seg) Update(index, value int) {
 		s.data[parent].Val = newValue
 		position = parent
 	}
+}
+
+func (s *seg) find(index, position int) int {
+	item := s.data[position]
+	for item.StartIndex != index || item.EndIndex != index {
+		left := leftChild(position)
+		right := rightChild(position)
+		if s.data[left].StartIndex <= index && s.data[left].EndIndex >= index {
+			position = left
+		} else {
+			position = right
+		}
+		item = s.data[position]
+	}
+
+	return position
 }
 
 //        0
@@ -137,9 +162,13 @@ func New(data []int, f func(int, int) int, defaultValue int) Segment {
 
 	// l: total leaf count, considering tree height, total needed space
 	// is 2*l-1 (e.g. l = 4, second level with 2 nodes, root with 1 node)
+	l := 1
+	for l < length {
+		l *= 2
+	}
 
 	s := &seg{
-		data:       make([]Item, 2*length-1),
+		data:       make([]Item, l+length-1),
 		comparator: f,
 		defaultVal: defaultValue,
 	}

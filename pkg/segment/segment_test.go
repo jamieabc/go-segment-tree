@@ -39,7 +39,7 @@ func TestNewWhenLengthNotPowerOf2(t *testing.T) {
 		values[i] = d.Val
 	}
 
-	assert.Equal(t, []int{-1, 1, -1, 1, 2, 6, -1, 1, 3, 2, 9, 7, 6}, values, "wrong construction")
+	assert.Equal(t, []int{-1, 1, -1, 1, 2, 6, -1, 1, 3, 2, 9, 7, 6, math.MaxInt32}, values, "wrong construction")
 }
 
 func TestQuery(t *testing.T) {
@@ -68,16 +68,19 @@ func TestQuery(t *testing.T) {
 }
 
 func TestUpdate(t *testing.T) {
-	data := []int{1, 3, 2, 9, 7, 6, -1}
+	data := []int{7, 1, 3, -4, 5, -2, -10, 0, 12, 3}
 	s := segment.New(data, min, math.MaxInt32)
 
-	s.Update(1, -2)
+	result := s.Query(2, 9, 0)
+	assert.Equal(t, -10, result, "wrong result")
+
+	s.Update(6, 7)
 	items := s.Data()
 	values := make([]int, len(items))
 	for i, d := range s.Data() {
 		values[i] = d.Val
 	}
 
-	result := s.Query(0, 6, 0)
-	assert.Equal(t, -2, result, "wrong result")
+	result = s.Query(2, 9, 0)
+	assert.Equal(t, -4, result, "wrong result")
 }
