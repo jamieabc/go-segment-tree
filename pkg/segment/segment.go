@@ -14,7 +14,8 @@ type Item struct {
 }
 
 type seg struct {
-	data []Item
+	data       []Item
+	comparable func(int, int) int
 }
 
 // Data - return interval tree
@@ -57,16 +58,17 @@ func (s *seg) construct(data []int, position, start, end int) (int, int) {
 	s.data[position] = Item{
 		StartIndex: l,
 		EndIndex:   r,
-		Val:        min(s.data[leftChild].Val, s.data[rightChild].Val),
+		Val:        s.comparable(s.data[leftChild].Val, s.data[rightChild].Val),
 	}
 	return l, r
 }
 
-func New(data []int) Segment {
+func New(data []int, f func(int, int) int) Segment {
 	length := len(data)
 	if length == 0 {
 		return &seg{
-			data: make([]Item, 0),
+			data:       make([]Item, 0),
+			comparable: f,
 		}
 	}
 
@@ -74,7 +76,8 @@ func New(data []int) Segment {
 	// is 2*l-1 (e.g. l = 4, second level with 2 nodes, root with 1 node)
 
 	s := &seg{
-		data: make([]Item, 2*length-1),
+		data:       make([]Item, 2*length-1),
+		comparable: f,
 	}
 
 	for i := range s.data {
@@ -84,11 +87,4 @@ func New(data []int) Segment {
 	s.construct(data, 0, 0, length-1)
 
 	return s
-}
-
-func min(i, j int) int {
-	if i <= j {
-		return i
-	}
-	return j
 }

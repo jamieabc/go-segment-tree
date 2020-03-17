@@ -6,9 +6,16 @@ import (
 	"testing"
 )
 
+func min(i, j int) int {
+	if i <= j {
+		return i
+	}
+	return j
+}
+
 func TestNewWhenLengthPowerOf2(t *testing.T) {
 	data := []int{1, 3, 2, 9, 7, 6, 12, -1}
-	s := segment.New(data)
+	s := segment.New(data, min)
 	items := s.Data()
 	values := make([]int, len(items))
 	for i, d := range s.Data() {
@@ -25,7 +32,7 @@ func TestNewWhenLengthPowerOf2(t *testing.T) {
 }
 
 func TestNewWhenLengthNotPowerOf2(t *testing.T) {
-	s := segment.New([]int{1, 3, 2, 9, 7, 6, -1})
+	s := segment.New([]int{1, 3, 2, 9, 7, 6, -1}, min)
 	values := make([]int, len(s.Data()))
 	for i, d := range s.Data() {
 		values[i] = d.Val
